@@ -1,0 +1,42 @@
+version: "3"
+services:
+  
+  plex:
+    image: ghcr.io/linuxserver/plex
+    container_name: plex
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${APPDATA}plex:/config
+      - ${GMEDIA}
+
+  watchtower:
+      image: containrrr/watchtower
+      container_name: watchtower
+      volumes:
+         - /var/run/docker.sock:/var/run/docker.sock
+         
+  ersatztv:
+      image: jasongdove/ersatztv
+      container_name: ersatztv
+      volumes:
+      - ${APPDATA}ersatztv:/root/.local/share/ersatztv
+      - ${GMEDIA}
+        
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    ports:
+      - 9000:9000
+      - 8000:8000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  portainer_data:
